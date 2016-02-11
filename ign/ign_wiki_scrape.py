@@ -17,15 +17,17 @@ import urllib2
 from bs4 import BeautifulSoup
 
 ###############################################################################
+############################## global veriables ###############################
 ###############################################################################
 
 html_dir = "html/"
 garbage_tags = ["a", "img", "p.wiki-videoEmbed"]
 
 ###############################################################################
+############### helper functions for web scraping IGN wiki pages ##############
 ###############################################################################
 
-def generate_html(game_title, game_platform, page_title, page_content):
+def __generate_html(game_title, game_platform, page_title, page_content):
     ''' function: generate_html
         -----------------------
         generate clean html files for Watson ingestion in /html/
@@ -39,11 +41,15 @@ def generate_html(game_title, game_platform, page_title, page_content):
              + ".html"
     print "Generating file:", filename
     file = open(os.path.join(html_dir, filename), 'w+')
-    file.write(str(page_title[0]).strip('\n\t\r'))
-    file.write(str(page_content[0]).strip('\n\t\r'))
+    file.write("<html>\n<head></head>\n<body>")
+    file.write(str(page_title[0])\
+               .strip('\n\t\r').decode('unicode_escape').encode('ascii','ignore'))
+    file.write(str(page_content[0])\
+               .strip('\n\t\r').decode('unicode_escape').encode('ascii','ignore'))
+    file.write("</body>\n</html>")
     file.close()
 
-def sanitize_html(content):
+def __sanitize_html(content):
     ''' function: sanitize_html
         -----------------------
         extract unnecessary <a>, <img>, and other tags from html content
@@ -68,14 +74,16 @@ def compile_url(url):
     soup = BeautifulSoup(page, "html.parser")
 
     # select elements used in file title
-    game_title = [e.get_text().strip() for e in soup.select("h2.contentTitle a")]
-    game_platform = [e.get_text().strip() for e in soup.select("div.contentPlatformsText span a")]
+    game_title = [e.get_text()\
+                  .strip() for e in soup.select("h2.contentTitle a")]
+    game_platform = [e.get_text()\
+                     .strip() for e in soup.select("div.contentPlatformsText span a")]
 
     # select elements used in file contents & sanitize
-    page_title = sanitize_html(soup.select("h1.gh-PageTitle"))
-    page_content = sanitize_html(soup.select("div.grid_12.push_4.alpha.omega.bodyCopy.gh-content"))
+    page_title = __sanitize_html(soup.select("h1.gh-PageTitle"))
+    page_content = __sanitize_html(soup.select("div.grid_12.push_4.alpha.omega.bodyCopy.gh-content"))
 
-    generate_html(game_title, game_platform, page_title, page_content)
+    __generate_html(game_title, game_platform, page_title, page_content)
 
 
 ###############################################################################
