@@ -9,7 +9,6 @@
 
 import sys
 import os
-import re
 import time
 import itertools
 
@@ -23,6 +22,10 @@ from bs4 import BeautifulSoup
 html_dir = "html/"
 garbage_tags = ["a", "img", "p.wiki-videoEmbed"]
 
+selectors = ["h2.contentTitle a", "div.contentPlatformsText span a",
+             "h1.gh-PageTitle",
+             "div.grid_12.push_4.alpha.omega.bodyCopy.gh-content"]
+
 ###############################################################################
 ############### helper functions for web scraping IGN wiki pages ##############
 ###############################################################################
@@ -35,17 +38,17 @@ def __generate_html(game_title, game_platform, page_title, page_content):
     if not os.path.exists(html_dir):
         os.makedirs(html_dir)
     # generate title and tags
-    filename = " ".join([ str(t.get_text().strip()) for t in page_title ]) + " - "\
-             + " ".join([ str(t) for t in game_title]) + " "\
+    filename = " ".join([ str(t.get_text().strip()) for t in page_title ])\
+             + " - " + " ".join([ str(t) for t in game_title]) + " "\
              + " ".join([ str(p) for p in game_platform])\
              + ".html"
     print "Generating file:", filename
     file = open(os.path.join(html_dir, filename), 'w+')
     file.write("<html>\n<head></head>\n<body>")
     file.write(str(page_title[0])\
-               .strip('\n\t\r').decode('unicode_escape').encode('ascii','ignore'))
+               .strip().decode('unicode_escape').encode('ascii','ignore'))
     file.write(str(page_content[0])\
-               .strip('\n\t\r').decode('unicode_escape').encode('ascii','ignore'))
+               .strip().decode('unicode_escape').encode('ascii','ignore'))
     file.write("</body>\n</html>")
     file.close()
 
@@ -74,14 +77,12 @@ def compile_url(url):
     soup = BeautifulSoup(page, "html.parser")
 
     # select elements used in file title
-    game_title = [e.get_text()\
-                  .strip() for e in soup.select("h2.contentTitle a")]
-    game_platform = [e.get_text()\
-                     .strip() for e in soup.select("div.contentPlatformsText span a")]
+    game_title = [e.get_text().strip() for e in soup.select(selectors[0])]
+    game_platform = [e.get_text().strip() for e in soup.select(selectors[1])]
 
     # select elements used in file contents & sanitize
-    page_title = __sanitize_html(soup.select("h1.gh-PageTitle"))
-    page_content = __sanitize_html(soup.select("div.grid_12.push_4.alpha.omega.bodyCopy.gh-content"))
+    page_title = __sanitize_html(soup.select(selectors[2]))
+    page_content = __sanitize_html(soup.select(selectors[3]))
 
     __generate_html(game_title, game_platform, page_title, page_content)
 
@@ -95,12 +96,16 @@ def main(argv):
         --------------
         accept list of urls & filepaths to url lists as @argv
     '''
+    total_start = time.time()
     for arg in argv:
         if os.path.isfile(arg):
             print "Processing arguments in file:", arg
             for line in open(arg, 'r'): argv.append(line.rstrip())
         else:
+            start = time.time()
             compile_url(arg)
+            print "Document scraped in", time.time() - start, "seconds"
+    print "Total time elapsed:", time.time() - total_start, "seconds"
 
 if __name__ == '__main__':
     main(sys.argv[1:])
