@@ -1,9 +1,32 @@
 MMRICA-scraping
 ===============
-Set of Web Scrapers for Walkthrough Sites
 
-The MIT License (MIT)
-=====================
+## Table of Contents
+1. [Overview](#overview)
+2. [Module Description](#description)
+3. [Usage](#usage)
+4. [Development](#development)
+5. [Contributors](#contributors)
+6. [License](#the-mit-license)
+
+## Overview
+The purpose of this module is to implement intelligent web crawling and scraping for various game walkthrough/cheats/tips sites.
+
+## Description
+This python module contains the following files and directories:
+
+* ign/
+	* ign_wiki_scrape.py - module to scrape IGN wiki pages into .html
+
+## Usage
+Ensure python and the beautifulsoup4 library is installed:
+
+* python ign_wiki_scrape.py [file/url, [...]]
+
+## Contributors
+* Ankai Lou (lou.56@osu.edu)
+
+## The MIT License (MIT)
 
 Copyright (c) 2016 Ankai Lou
 
