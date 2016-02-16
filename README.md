@@ -18,8 +18,18 @@ This python module contains the following files and directories:
 * html/
   * auto-generated .html files
 * ign/
-  * ign_wiki_scrape.py - module to scrape IGN wiki pages into .html
-  * ign_wiki_crawl.py - moedule to crawl over IGN wiki pages for curation
+  * crawler.py - super-module for crawling/scraping IGN pages
+  * wiki/
+    * __init__.py
+    * scraper.py - module to scrape IGN wiki pages into .html files
+    * crawler.py - module to crawl over IGN wiki pages for curation
+  * cheat/
+    * __init__.py
+    * scraper.py - module to scrape IGN cheat pages into multiple .html files
+  * walkthrough/
+    * __init__.py
+    * scraper.py - module to scrape IGN walkthrough into .html files
+    * crawler.py - module to crawl over IGN walkthrough pages for curation
 * seed/
   * ign_scrape_seed - test file for ign_wiki_scrape.py
   * ign_crawl_seed - test file for ign_wiki_crawl.py

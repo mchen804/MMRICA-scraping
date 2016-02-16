@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 ############################## global veriables ###############################
 ###############################################################################
 
-html_dir = '../html/ign/'
+html_dir = '../../html/ign/'
 bad_tags = ['div.gh-next-prev-buttons', 'img', 'p.wiki-videoEmbed']
 selectors = {'gt' : 'h2.contentTitle a',
              'pt' : 'h1.gh-PageTitle',
@@ -35,7 +35,6 @@ def __generate_html(gt, gp, pt, pc):
         generate clean html files for Watson ingestion in @html_dir
     '''
     if not os.path.exists(html_dir): os.makedirs(html_dir)
-
     if len(pc) > 0:
         filename = ' '.join([str(t) for t in gt])\
                  + ' - ' + ' '.join([str(t.get_text().strip()) for t in pt])\
@@ -64,12 +63,11 @@ def __sanitize_html(content):
     for t in [tag
               for tree, selector in product(content, bad_tags)
               for tag in tree.select(selector)]: t.extract()
-
     return content
 
-def scrape_url(url):
-    ''' function: scrape_url
-        --------------------
+def scrape(url):
+    ''' function: scrape
+        ----------------
         compile relevant title, content, and system into HTML document
     '''
     start = time()
@@ -105,7 +103,7 @@ def main(argv):
             for line in open(arg, 'r'): argv.append(line.rstrip())
         else:
             print 'Processing argument:', arg
-            scrape_url(arg)
+            scrape(arg)
     print 'Total time elapsed:', time() - total_start, 'seconds'
 
 if __name__ == '__main__':
