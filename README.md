@@ -15,13 +15,20 @@ The purpose of this module is to implement intelligent web crawling and scraping
 ## Description
 This python module contains the following files and directories:
 
+* html/
+  * auto-generated .html files
 * ign/
-	* ign_wiki_scrape.py - module to scrape IGN wiki pages into .html
+  * ign_wiki_scrape.py - module to scrape IGN wiki pages into .html
+  * ign_wiki_crawl.py - moedule to crawl over IGN wiki pages for curation
+* seed/
+  * ign_scrape_seed - test file for ign_wiki_scrape.py
+  * ign_crawl_seed - test file for ign_wiki_crawl.py
 
 ## Usage
 Ensure python and the beautifulsoup4 library is installed:
 
 * python ign_wiki_scrape.py [file/url, [...]]
+* python ign_wiki_crawl.py [file/url, [...]]
 
 ## Contributors
 * Ankai Lou (lou.56@osu.edu)
