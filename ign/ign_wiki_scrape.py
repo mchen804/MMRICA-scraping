@@ -9,84 +9,85 @@
 
 import sys
 import os
-import time
-import itertools
-import urllib2
+from time import time
+from itertools import product
+from urllib2 import urlopen
 from bs4 import BeautifulSoup
 
 ###############################################################################
 ############################## global veriables ###############################
 ###############################################################################
 
-html_dir = 'html/'
-garbage_tags = ['a', 'img', 'p.wiki-videoEmbed']
-selectors = {'gTitle' : 'h2.contentTitle a',
-             'pTitle' : 'h1.gh-PageTitle' ,
-             'gPlat' : 'div.contentPlatformsText span a',
-             'pCont' : 'div.grid_12.push_4.alpha.omega.bodyCopy.gh-content'}
+html_dir = '../html/ign/'
+bad_tags = ['div.gh-next-prev-buttons', 'img', 'p.wiki-videoEmbed']
+selectors = {'gt' : 'h2.contentTitle a',
+             'pt' : 'h1.gh-PageTitle',
+             'gp' : 'div.contentPlatformsText span a',
+             'pc' : 'div.grid_12.push_4.alpha.omega.bodyCopy.gh-content'}
 
 ###############################################################################
 ############### helper functions for web scraping IGN wiki pages ##############
 ###############################################################################
 
-def __generate_html(game_title, game_platform, page_title, page_content):
+def __generate_html(gt, gp, pt, pc):
     ''' function: generate_html
         -----------------------
-        generate clean html files for Watson ingestion in /html/
+        generate clean html files for Watson ingestion in @html_dir
     '''
-    if not os.path.exists(html_dir):
-        os.makedirs(html_dir)
-    # generate title from tags
-    filename = ' '.join([ str(t.get_text().strip()) for t in page_title ])\
-             + ' - ' + ' '.join([ str(t) for t in game_title]) + ' '\
-             + ' '.join([ str(p) for p in game_platform])\
-             + '.html'
+    if not os.path.exists(html_dir): os.makedirs(html_dir)
 
-    # generate file & contents
-    print 'Generating file:', filename
-    file = open(os.path.join(html_dir, filename), 'w+')
-    file.write('<html>\n<head></head>\n<body>')
-    for p in page_title:
-        file.write(str(p).strip().decode('unicode_escape').encode('ascii','ignore'))
-    for p in page_content:
-        file.write(str(p).strip().decode('unicode_escape').encode('ascii','ignore'))
-    file.write('</body>\n</html>')
-    file.close()
+    if len(pc) > 0:
+        filename = ' '.join([str(t) for t in gt])\
+                 + ' - ' + ' '.join([str(t.get_text().strip()) for t in pt])\
+                 + ' - ' + ' '.join([str(p) for p in gp]) + '.html'
+        print 'Generating file:', filename
+        file = open(os.path.join(html_dir, filename.replace('/',' - ')), 'w+')
+        file.write('<html>\n<head></head>\n<body>')
+        for p in pt: file.write(unicode(p).strip().encode('ascii','ignore'))
+        for p in pc: file.write(unicode(p).strip().encode('ascii','ignore'))
+        file.write('</body>\n</html>')
+        file.close()
+    else:
+        print 'Content length too short. No file generated.'
 
 def __sanitize_html(content):
     ''' function: sanitize_html
         -----------------------
         extract unnecessary <a>, <img>, and other tags from html content
     '''
+    tmp = BeautifulSoup('', 'html.parser')
+    for tree in content:
+        for a in tree.select("a"):
+            p = tmp.new_tag("p")
+            p.string = a.get_text().strip()
+            a.replace_with(p)
     for t in [tag
-              for tree, selector in itertools.product(content,garbage_tags)
+              for tree, selector in product(content, bad_tags)
               for tag in tree.select(selector)]: t.extract()
+
     return content
 
-def compile_url(url):
-    ''' function: compile_url
-        ---------------------
+def scrape_url(url):
+    ''' function: scrape_url
+        --------------------
         compile relevant title, content, and system into HTML document
     '''
+    start = time()
     try:
-        page = urllib2.urlopen(url)
+        soup = BeautifulSoup(urlopen(url), 'html.parser')
+    except KeyboardInterrupt:
+        print 'Process Terminated.'
+        sys.exit(1)
     except:
         print 'Argument', url, 'cannot be processed...'
         return
 
-    print 'Scraping url:', url
-    soup = BeautifulSoup(page, 'html.parser')
-
-    # select elements used in file title
-    game_title = [e.get_text().strip() for e in soup.select(selectors['gTitle'])]
-    game_platform = [e.get_text().strip() for e in soup.select(selectors['gPlat'])]
-
-    # select elements used in file contents & sanitize
-    page_title = __sanitize_html(soup.select(selectors['pTitle']))
-    page_content = __sanitize_html(soup.select(selectors['pCont']))
-
-    __generate_html(game_title, game_platform, page_title, page_content)
-
+    gt = [e.get_text().strip() for e in soup.select(selectors['gt'])]
+    gp = [e.get_text().strip() for e in soup.select(selectors['gp'])]
+    pt = __sanitize_html(soup.select(selectors['pt']))
+    pc = __sanitize_html(soup.select(selectors['pc']))
+    __generate_html(gt, gp, pt, pc)
+    print 'Document scraped in', time() - start, 'seconds'
 
 ###############################################################################
 ##################### main function for testing purposes ######################
@@ -97,16 +98,15 @@ def main(argv):
         --------------
         accept list of urls & filepaths to url lists as @argv
     '''
-    total_start = time.time()
+    total_start = time()
     for arg in argv:
         if os.path.isfile(arg):
             print 'Processing arguments in file:', arg
             for line in open(arg, 'r'): argv.append(line.rstrip())
         else:
-            start = time.time()
-            compile_url(arg)
-            print 'Document scraped in', time.time() - start, 'seconds'
-    print 'Total time elapsed:', time.time() - total_start, 'seconds'
+            print 'Processing argument:', arg
+            scrape_url(arg)
+    print 'Total time elapsed:', time() - total_start, 'seconds'
 
 if __name__ == '__main__':
     main(sys.argv[1:])
