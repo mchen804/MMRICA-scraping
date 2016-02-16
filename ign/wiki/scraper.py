@@ -18,7 +18,6 @@ from bs4 import BeautifulSoup
 ############################## global veriables ###############################
 ###############################################################################
 
-html_dir = '../../html/ign/'
 bad_tags = ['div.gh-next-prev-buttons', 'img', 'p.wiki-videoEmbed']
 selectors = {'gt' : 'h2.contentTitle a',
              'pt' : 'h1.gh-PageTitle',
@@ -29,7 +28,7 @@ selectors = {'gt' : 'h2.contentTitle a',
 ############### helper functions for web scraping IGN wiki pages ##############
 ###############################################################################
 
-def __generate_html(gt, gp, pt, pc):
+def __generate_html(gt, gp, pt, pc, html_dir):
     ''' function: generate_html
         -----------------------
         generate clean html files for Watson ingestion in @html_dir
@@ -65,7 +64,7 @@ def __sanitize_html(content):
               for tag in tree.select(selector)]: t.extract()
     return content
 
-def scrape(url):
+def scrape(url, html="../../html/ign/"):
     ''' function: scrape
         ----------------
         compile relevant title, content, and system into HTML document
@@ -84,7 +83,7 @@ def scrape(url):
     gp = [e.get_text().strip() for e in soup.select(selectors['gp'])]
     pt = __sanitize_html(soup.select(selectors['pt']))
     pc = __sanitize_html(soup.select(selectors['pc']))
-    __generate_html(gt, gp, pt, pc)
+    __generate_html(gt, gp, pt, pc, html)
     print 'Document scraped in', time() - start, 'seconds'
 
 ###############################################################################

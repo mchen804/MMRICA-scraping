@@ -37,8 +37,7 @@ This python module contains the following files and directories:
 ## Usage
 Ensure python and the beautifulsoup4 library is installed:
 
-* python ign_wiki_scrape.py [file/url, [...]]
-* python ign_wiki_crawl.py [file/url, [...]]
+* python ign/crawler.py [file/url, [...]]
 
 ## Contributors
 * Ankai Lou (lou.56@osu.edu)

@@ -18,34 +18,31 @@ from bs4 import BeautifulSoup
 ############################## global veriables ###############################
 ###############################################################################
 
-html_dir = '../../html/ign/'
 bad_tags = ['div.gh-next-prev-buttons', 'img', 'p.wiki-videoEmbed']
-selectors = { 'gt' : 'h2.contentTitle a',
+selectors =  {'gt' : 'h2.contentTitle a',
               'gp' : 'div.contentPlatformsText span a',
-              'title'   : 'h3.maintext16.bold.grey',
-              'cheat'   : 'div#category_cheat div.cheatBody div.grid_12.omega',
-              'unlock'  : 'div#category_unlockable div.cheatBody div.grid_12.omega',
-              'hint'    : 'div#category_hint div.cheatBody div.grid_12.omega',
-              'easter'  : 'div#category_easter-egg div.cheatBody div.grid_12.omega',
-              'achieve' : 'div#category_achievement div.cheatBody div.grid_12.omega'}
+              'title'   : 'h3.maintext16.bold.grey'}
+categories = {'Cheat'       : 'div#category_cheat div.cheatBody div.grid_12.omega',
+              'Unlockable'  : 'div#category_unlockable div.cheatBody div.grid_12.omega',
+              'Hint'        : 'div#category_hint div.cheatBody div.grid_12.omega',
+              'Easter Egg'  : 'div#category_easter-egg div.cheatBody div.grid_12.omega',
+              'Achievement' : 'div#category_achievement div.cheatBody div.grid_12.omega'}
 
 ###############################################################################
-############### helper functions for web scraping IGN wiki pages ##############
+############### helper functions for web scraping IGN cheat page ##############
 ###############################################################################
 
-def __generate_html(gt, gp, content, category):
+def __generate_html(gt, gp, content, category, html_dir):
     ''' function: generate_html
         -----------------------
         generate clean html files for Watson ingestion in @html_dir
     '''
     if not os.path.exists(html_dir): os.makedirs(html_dir)
-
     title = content.select(selectors['title'])
     filename = ' '.join([str(t) for t in gt])\
              + ' ' + category\
              + ' - ' + ' '.join([str(t.get_text().strip()) for t in title])\
              + ' - ' + ' '.join([str(p) for p in gp]) + '.html'
-
     print 'Generating file:', filename
     file = open(os.path.join(html_dir, filename.replace('/',' - ')), 'w+')
     file.write('<html>\n<head></head>\n<body>')
@@ -69,7 +66,7 @@ def __sanitize_html(content):
               for tag in tree.select(selector)]: t.extract()
     return content
 
-def scrape(url):
+def scrape(url, html="../../html/ign/"):
     ''' function: scrape
         ----------------
         compile relevant title, content, and system into HTML document
@@ -86,16 +83,9 @@ def scrape(url):
 
     gt = [e.get_text().strip() for e in soup.select(selectors['gt'])]
     gp = [e.get_text().strip() for e in soup.select(selectors['gp'])]
-    cheat   = __sanitize_html(soup.select(selectors['cheat']))
-    unlock  = __sanitize_html(soup.select(selectors['unlock']))
-    hint    = __sanitize_html(soup.select(selectors['hint']))
-    easter  = __sanitize_html(soup.select(selectors['easter']))
-    achieve = __sanitize_html(soup.select(selectors['achieve']))
-    for c in cheat:   __generate_html(gt, gp, c, 'Cheat')
-    for u in unlock:  __generate_html(gt, gp, u, 'Unlockable')
-    for h in hint:    __generate_html(gt, gp, h, 'Hint')
-    for e in easter:  __generate_html(gt, gp, e, 'Easter Egg')
-    for a in achieve: __generate_html(gt, gp, a, 'Achievement')
+    for category, selector in categories.iteritems():
+        tags = __sanitize_html(soup.select(selector))
+        for t in tags: __generate_html(gt, gp, t, category, html)
     print 'Document scraped in', time() - start, 'seconds'
 
 ###############################################################################
