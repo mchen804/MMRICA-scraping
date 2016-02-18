@@ -38,10 +38,10 @@ def __generate_html(gt, gp, pt, pc, html_dir):
     if len(pc) > 0:
         filename = ' '.join([str(t) for t in gt])\
                  + ' - ' + ' '.join([str(t.get_text().strip()) for t in pt])\
-                 + ' - ' + ' '.join([str(p) for p in gp]) + '.html'
+                 + ' - ' + ' '.join([str(p) for p in gp])
         for c in bad_char: filename = filename.replace(c, ' - ')
         print 'Generating file:', filename
-        file = open(os.path.join(html_dir, filename), 'w+')
+        file = open(os.path.join(html_dir, filename + '.html'), 'w+')
         file.write('<html>\n<head></head>\n<body>')
         for p in pt: file.write(unicode(p).strip().encode('ascii','ignore'))
         for p in pc: file.write(unicode(p).strip().encode('ascii','ignore'))

@@ -19,6 +19,7 @@ from cheat.scraper import scrape
 ############################## global variables ###############################
 ###############################################################################
 
+ign_base = 'http://www.ign.com'
 
 ###############################################################################
 ############### helper functions for scraping generic IGN pages ###############
@@ -36,12 +37,14 @@ def classify(url):
         ------------------
         determine action for @url based on regex matching
     '''
-    pass
-    # if game page
-    # elif wiki page
-    # elif cheat page
-    # elif walkthrough page
-    # else cannot process
+    if re.match(ign_base + '/games/.+'):
+        dissect(url)
+    elif re.match(ign_base + '/wikis/.+'):
+        crawl(url)
+    elif re.match(ign_base + '/cheats/.+'):
+        scrape(url)
+    else:
+        print 'Argument', url, 'cannot be processed...'
 
 ###############################################################################
 ##################### main function for testing purposes ######################
