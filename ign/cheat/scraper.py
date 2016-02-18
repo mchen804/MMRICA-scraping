@@ -68,7 +68,7 @@ def __sanitize_html(content):
               for tag in tree.select(selector)]: t.extract()
     return content
 
-def scrape(url, html="../../html/ign/"):
+def scrape(url, html=os.getcwd()+"../../html/ign/"):
     ''' function: scrape
         ----------------
         compile relevant title, content, and system into HTML document
