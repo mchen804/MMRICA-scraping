@@ -18,6 +18,7 @@ from bs4 import BeautifulSoup
 ############################## global veriables ###############################
 ###############################################################################
 
+bad_char = [':', ';', ',', '/', '.', '*', '&', '^', '%', '$', '#', '@']
 bad_tags = ['div.gh-next-prev-buttons', 'img', 'p.wiki-videoEmbed']
 selectors =  {'gt' : 'h2.contentTitle a',
               'gp' : 'div.contentPlatformsText span a',
@@ -43,8 +44,9 @@ def __generate_html(gt, gp, content, category, html_dir):
              + ' ' + category\
              + ' - ' + ' '.join([str(t.get_text().strip()) for t in title])\
              + ' - ' + ' '.join([str(p) for p in gp]) + '.html'
+    for c in bad_char: filename = filename.replace(c, ' - ')
     print 'Generating file:', filename
-    file = open(os.path.join(html_dir, filename.replace('/',' - ').replace(':',' - ')), 'w+')
+    file = open(os.path.join(html_dir, filename), 'w+')
     file.write('<html>\n<head></head>\n<body>')
     file.write(unicode(content).strip().encode('ascii','ignore'))
     file.write('</body>\n</html>')
