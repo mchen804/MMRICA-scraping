@@ -44,7 +44,7 @@ def __generate_html(gt, gp, content, category, html_dir):
              + ' - ' + ' '.join([str(t.get_text().strip()) for t in title])\
              + ' - ' + ' '.join([str(p) for p in gp]) + '.html'
     print 'Generating file:', filename
-    file = open(os.path.join(html_dir, filename.replace('/',' - ')), 'w+')
+    file = open(os.path.join(html_dir, filename.replace('/',' - ').replace(':',' - ')), 'w+')
     file.write('<html>\n<head></head>\n<body>')
     file.write(unicode(content).strip().encode('ascii','ignore'))
     file.write('</body>\n</html>')

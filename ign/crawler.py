@@ -9,6 +9,7 @@
 
 import sys
 import os
+import re
 from time import time
 from urllib2 import urlopen
 from wiki.crawler import crawl

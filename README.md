@@ -20,14 +20,14 @@ This python module contains the following files and directories:
 * ign/
   * crawler.py - super-module for crawling/scraping IGN pages
   * wiki/
-    * __init__.py
+    * \_\_init\_\_.py
     * scraper.py - module to scrape IGN wiki pages into .html files
     * crawler.py - module to crawl over IGN wiki pages for curation
   * cheat/
-    * __init__.py
+    * \_\_init\_\_.py
     * scraper.py - module to scrape IGN cheat pages into multiple .html files
   * walkthrough/
-    * __init__.py
+    * \_\_init\_\_.py
     * scraper.py - module to scrape IGN walkthrough into .html files
     * crawler.py - module to crawl over IGN walkthrough pages for curation
 * seed/
@@ -38,6 +38,9 @@ This python module contains the following files and directories:
 Ensure python and the beautifulsoup4 library is installed:
 
 * python ign/crawler.py [file/url, [...]]
+
+## Development
+This module was developed and tested on Python 2.7.5 and OS 10.11.3
 
 ## Contributors
 * Ankai Lou (lou.56@osu.edu)
