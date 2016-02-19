@@ -15,6 +15,7 @@ The purpose of this module is to implement intelligent web crawling and scraping
 ## Description
 This python module contains the following files and directories:
 
+* crawler.py - Unfinished generic url crawler
 * html/
   * auto-generated .html files
 * ign/
@@ -26,13 +27,17 @@ This python module contains the following files and directories:
   * cheat/
     * \_\_init\_\_.py
     * scraper.py - module to scrape IGN cheat pages into multiple .html files
-  * walkthrough/
-    * \_\_init\_\_.py
-    * scraper.py - module to scrape IGN walkthrough into .html files
-    * crawler.py - module to crawl over IGN walkthrough pages for curation
+* wikia/
+  * \_\_init\_\_.py
+  * scraper.py - module for scraping Wikia pages
+  * crawler.py - module for crawling over Wikia links
 * seed/
-  * ign_scrape_seed - test file for ign_wiki_scrape.py
-  * ign_crawl_seed - test file for ign_wiki_crawl.py
+  * ign_wiki_scraper_test - test file for ign/wiki/scraper.py
+  * ign_wiki_crawler_test - test file for ign/wiki/crawler.py
+  * ign_cheat_scraper_test - file file for ign/cheat/scraper.py
+  * ign_crawler_test - test file for ign/crawler.py
+  * wiki_scraper_test - test file for wikia/scraper.py
+  * wiki_crawler_test _ test file for wikia/crawler.py
 
 ## Usage
 Ensure python and the beautifulsoup4 library is installed:

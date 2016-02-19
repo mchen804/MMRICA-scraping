@@ -1,10 +1,10 @@
 #!/usr/local/bin/python
 
-''' ign_wiki_scrape.py
-    ------------------
+''' wiki_scrape.py
+    --------------
     @author = Ankai Lou
     -------------------
-    Module for scraping, preprocessing, and compiling IGN wiki pages into HTML
+    Module for scraping, preprocessing, and compiling Wikia pages to HTML
 '''
 
 import sys
@@ -18,30 +18,29 @@ from bs4 import BeautifulSoup
 ############################## global veriables ###############################
 ###############################################################################
 
+bad_page = ['Home', 'Main Page', 'Redirected']
 bad_char = [':', ';', ',', '/', '*', '&', '^', '%', '$', '#', '@']
-bad_tags = ['div.gh-next-prev-buttons', 'img', 'p.wiki-videoEmbed']
-selectors = {'gt' : 'h2.contentTitle a',
-             'pt' : 'h1.gh-PageTitle',
-             'gp' : 'div.contentPlatformsText span a',
-             'pc' : 'div.grid_12.push_4.alpha.omega.bodyCopy.gh-content'}
+bad_tags = ['div.gh-next-prev-buttons', 'img', 'iframe']
+selectors = {'pt' : 'h1#firstHeading, div.header-column.header-title',
+             'gp' : 'table.infobox.bordered.vevent tr td b',
+             'pc' : 'div#bodyContent, div#WikiaArticle'}
 
 ###############################################################################
-############### helper functions for web scraping IGN wiki pages ##############
+################# helper functions for web scraping wiki pages ################
 ###############################################################################
 
-def __generate_html(gt, gp, pt, pc, html_dir):
+def __generate_html(pt, pc, html_dir, header):
     ''' function: generate_html
         -----------------------
         generate clean html files for Watson ingestion in @html_dir
     '''
     if not os.path.exists(html_dir): os.makedirs(html_dir)
-    if len(pc) > 0:
-        filename = ' '.join([str(t) for t in gt])\
-                 + ' - ' + ' '.join([str(t.get_text().strip()) for t in pt])\
-                 + ' - ' + ' '.join([str(p) for p in gp])
+    filename = ' '.join([unicode(t.get_text().strip()).encode('ascii', 'ignore')
+                         for t in pt]).strip('\n\t\r')
+    if len(pc) > 0 and len(filename) > 0 and not any(s in filename for s in bad_page):
         for c in bad_char: filename = filename.replace(c, ' - ')
         print 'Generating file:', filename
-        file = open(os.path.join(html_dir, filename + '.html'), 'w+')
+        file = open(os.path.join(html_dir, header + " " + filename + ' Wikia.html'), 'w+')
         file.write('<html>\n<head></head>\n<body>')
         for p in pt: file.write(unicode(p).strip().encode('ascii','ignore'))
         for p in pc: file.write(unicode(p).strip().encode('ascii','ignore'))
@@ -59,14 +58,14 @@ def __sanitize_html(content):
     for tree in content:
         for a in tree.select("a"):
             p = tmp.new_tag("span")
-            p.string = a.get_text().strip()
+            p.string = a.get_text().strip('\n')
             a.replace_with(p)
     for t in [tag
               for tree, selector in product(content, bad_tags)
               for tag in tree.select(selector)]: t.extract()
     return content
 
-def scrape(url, html=os.getcwd()+"../../html/ign/"):
+def scrape(url, html=os.getcwd()+"../html/wikia/", header=""):
     ''' function: scrape
         ----------------
         compile relevant title, content, and system into HTML document
@@ -81,11 +80,9 @@ def scrape(url, html=os.getcwd()+"../../html/ign/"):
         print 'Argument', url, 'cannot be processed...'
         return
 
-    gt = [e.get_text().strip() for e in soup.select(selectors['gt'])]
-    gp = [e.get_text().strip() for e in soup.select(selectors['gp'])]
     pt = __sanitize_html(soup.select(selectors['pt']))
     pc = __sanitize_html(soup.select(selectors['pc']))
-    __generate_html(gt, gp, pt, pc, html)
+    __generate_html(pt, pc, html, header)
     print 'Document scraped in', time() - start, 'seconds'
 
 ###############################################################################

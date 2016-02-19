@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 ############################## global veriables ###############################
 ###############################################################################
 
-bad_char = [':', ';', ',', '/', '.', '*', '&', '^', '%', '$', '#', '@']
+bad_char = [':', ';', ',', '/', '*', '&', '^', '%', '$', '#', '@']
 bad_tags = ['div.gh-next-prev-buttons', 'img', 'p.wiki-videoEmbed']
 selectors =  {'gt' : 'h2.contentTitle a',
               'gp' : 'div.contentPlatformsText span a',
@@ -60,7 +60,7 @@ def __sanitize_html(content):
     tmp = BeautifulSoup('', 'html.parser')
     for tree in content:
         for a in tree.select("a"):
-            p = tmp.new_tag("p")
+            p = tmp.new_tag("span")
             p.string = a.get_text().strip()
             a.replace_with(p)
     for t in [tag
@@ -89,6 +89,7 @@ def scrape(url, html=os.getcwd()+"../../html/ign/"):
         tags = __sanitize_html(soup.select(selector))
         for t in tags: __generate_html(gt, gp, t, category, html)
     print 'Document scraped in', time() - start, 'seconds'
+    return set([url])
 
 ###############################################################################
 ##################### main function for testing purposes ######################

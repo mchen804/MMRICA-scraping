@@ -1,10 +1,10 @@
 #!/usr/local/bin/python
 
-''' ign_wiki_crawl.py
-    -----------------
+''' wiki_crawl.py
+    -------------
     @author = Ankai Lou
     -------------------
-    Module for crawling and curating IGN wiki pages to scrape
+    Module for crawling and curating generic Wikia pages to scrape
 '''
 
 import sys
@@ -14,15 +14,18 @@ import urllib2
 from time import time
 from json import loads
 from bs4 import BeautifulSoup
+from urlparse import urlparse, urljoin
 from scraper import scrape
 
 ###############################################################################
 ############################## global veriables ###############################
 ###############################################################################
 
-ign_base = 'http://www.ign.com'
-selectors = {'menu'  : 'div.ghn-L1.ghn-hasSub',
-             'embed' : 'div.grid_12.push_4.alpha.omega.bodyCopy.gh-content a' }
+wiki_base = None
+selectors = {'menu'   : 'div#p-Navigation div.pBody a',
+             'nav'    : 'nav.WikiNav li.nav-item .subnav-2-item a',
+             'embed1' : 'div#bodyContent a',
+             'embed2' : 'div#WikiaArticle a' }
 
 ###############################################################################
 ################ helper functions to crawl & curate wiki pages ################
@@ -33,7 +36,10 @@ def __relevant(url):
         ------------------
         determine if url contains relevant content
     '''
-    if re.match(ign_base + '/wikis/.+/.+', url):
+    global wiki_base
+    if re.match(wiki_base + '.+', url)\
+       and url.count(':') < 2\
+       and url.count('#') == 0:
         return True
     return False
 
@@ -58,21 +64,24 @@ def __get_neighbors(url):
         print 'Cannot get neighbors from argument:', url
         return neighbors
 
-    for link in soup.select(selectors['menu']):
-        for doc in loads(link['data-sub']):
-            if doc.has_key('href'): neighbors.append(ign_base + doc['href'])
-            if doc.has_key('sub'): __append_sublist(neighbors, doc['sub'])
-    for link in soup.select(selectors['embed']):
-        fqdn = ign_base + link['href']
-        if re.match(ign_base + '/wikis/.+', fqdn): neighbors.append(fqdn)
+    for link in soup.select(selectors['menu']) + soup.select(selectors['nav']):
+        neighbors.append(urljoin(wiki_base,link['href']))
+    for link in soup.select(selectors['embed1']) + soup.select(selectors['embed2']):
+        if link.has_attr('href'):
+            fqdn = urljoin(wiki_base,link['href'])
+            if re.match(wiki_base + '.+', fqdn): neighbors.append(fqdn)
     return neighbors
 
-def crawl(url, html='../../html/ign/'):
+def crawl(url, html='../html/wikia/'):
     ''' function: crawl
         ---------------
         bfs traversal of urls in main content section of @url
     '''
+    global wiki_base
     start = time()
+    parsed_uri = urlparse(url)
+    netloc = '{uri.netloc}'.format(uri=parsed_uri)
+    wiki_base = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
     explored, frontier = set(), list()
     if url not in explored: frontier.append(url)
     while len(frontier) > 0:
@@ -81,7 +90,8 @@ def crawl(url, html='../../html/ign/'):
         for neighbor in __get_neighbors(node):
             if neighbor not in frontier and neighbor not in explored:
                 frontier.append(neighbor)
-        if __relevant(node): scrape(node, html)
+        if __relevant(node):
+            scrape(node, html, netloc)
     print 'Crawling complete in', time() - start, 'seconds'
     return explored
 
