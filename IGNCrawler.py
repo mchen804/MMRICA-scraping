@@ -123,6 +123,7 @@ class IGNCrawler(GameCrawler):
                         if neighbor not in self.frontier and neighbor not in self.explored:
                             self.frontier.append(neighbor)
             else: continue
+        print 'Crawling complete in', time() - start, 'seconds'
 
 ###############################################################################
 ##################### main function for testing purposes ######################
