@@ -9,7 +9,9 @@
 
 import sys
 import os
+import re
 from time import time
+from urlparse import urlparse, urljoin
 from generics.GameScraper import GameScraper
 from generics.GameCrawler import GameCrawler
 
@@ -17,15 +19,17 @@ from generics.GameCrawler import GameCrawler
 ############## global variables relating to Wikia/Wiki metadata ###############
 ###############################################################################
 
-home = ''
+home = 'html/wikia/'
 base = ''
 gt = []
-pt = []
-gp = []
-pc = []
-bt = []
-bp = []
-selector = {}
+pt = ['h1#firstHeading', 'div.header-column.header-title']
+gp = ['table.infobox.bordered.vevent tr td b']
+pc = ['div#bodyContent', 'div#WikiaArticle']
+bt = ['a', 'div.gh-next-prev-buttons', 'img', 'iframe']
+bp = ['Home', 'Main Page', 'Redirected', 'Disambiguation', 'Logged', 'New images',
+      'logged in to chat', 'Forum', 'New User', 'Help', 'Special', 'News', 'Recent Wiki Activity']
+selector = {'menu'  : ['div#p-Navigation div.pBody a', 'nav.WikiNav li.nav-item .subnav-2-item a'],
+            'embed' : ['div#bodyContent a', 'div#WikiaArticle a']}
 
 ###############################################################################
 ###### Class definition for WikiaCrawler object that extends GameCrawler ######
@@ -42,6 +46,8 @@ class WikiaCrawler(GameCrawler):
             @base      base URL for incomplete paths (thanks IGN)
         '''
         GameCrawler.__init__(self, scraper, selector, base)
+        self.type = ['jpg', 'png', 'gif', 'webm']
+        self.wiki, self.base = '', ''
 
     ###########################################################################
     ######################### helper function for bfs #########################
@@ -54,7 +60,12 @@ class WikiaCrawler(GameCrawler):
             -------------------------------------------------------
             @url    string represeting URL to test for relevance
         '''
-        return True
+        if re.match(self.base + '.+', url) and url.count(':') < 2 and url.count('#') == 0:
+            return True
+        elif any([re.match(r'.+\.%s' % filetype , url) for filetype in self.types]):
+            return False
+        else:
+            return False
 
     def __get_neighbors(self):
         ''' function: get_neighbors
@@ -64,15 +75,45 @@ class WikiaCrawler(GameCrawler):
         '''
         neighbors, soup = [], self.scraper.soup
         if soup:
-            pass
-            # get menu and navbar URLs
+            # get navigation bar URLs
+            for css in self.selectors['menu']:
+                for link in soup.select(css):
+                    neighbors.append(urljoin(self.base, link['href']))
             # get embedded URLs
+            for css in self.selectors['embed']:
+                for link in soup.select(css):
+                    if link.has_attr('href'):
+                        fqdn = urljoin(self.base, link['href'])
+                        if self.__relevant(fqdn): neighbors.append(fqdn)
         return neighbors
 
     ###########################################################################
     ################ crawl function inherited from GameCrawler ################
     ###########################################################################
 
+    def crawl(self, url):
+        ''' function: crawl
+            ---------------
+            scrapes all relevant/reachable nodes from @url
+            ----------------------------------------------
+            @url    starting url node to begin crawling process
+        '''
+        start = time()
+        if url not in self.explored:
+            self.frontier.append(url)
+            self.scraper.game[0] = '{uri.netloc}'.format(uri=urlparse(url))
+            self.base = '{uri.scheme}://{uri.netloc}'.format(uri=urlparse(url))
+
+        while len(self.frontier) > 0:
+            node = self.frontier.pop(0)
+            if self.scraper.update(node) == 0:
+                self.explored.add(node)
+                self.scraper.scrape()
+                for neighbor in self.__get_neighbors():
+                    if neighbor not in self.frontier and neighbor not in self.explored:
+                        self.frontier.append(neighbor)
+            else: continue
+        print 'Crawling complete in', time() - start, 'seconds'
 
 ###############################################################################
 ###################### main function for testing purpose ######################
