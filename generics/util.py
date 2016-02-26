@@ -58,3 +58,4 @@ def deHTMLfy(content):
         content = re.sub(r'<%s.*>' % tag, '|%s|' % meta, content)
         content = re.sub(r'</%s.*>' % tag, '|/%s|' % meta, content)
     return content
+

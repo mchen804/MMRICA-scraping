@@ -23,7 +23,7 @@ from util import *
 ###############################################################################
 
 class GameScraper(object):
-    def __init__(self, gt, gp, pt, pc, bt, bp, home='html/', split=None):
+    def __init__(self, gt, gp, pt, pc, bt, bp, home='html/'):
         ''' function: constructor
             ---------------------
             instantiate game scraper object for site type
@@ -35,7 +35,6 @@ class GameScraper(object):
             @bt      list of css selectors for bad tags to be sanitized
             @bp      list of sub-names of pages not to be created, e.g. Home
             @home    directory path for generated html files
-            @split   dictionary of categories to split page
         '''
         # objects used for scraping
         self.soup = None
@@ -46,7 +45,6 @@ class GameScraper(object):
         self.bad_tags = bt
         self.bad_page = bp
         self.bad_char = [':', ';', ',', '/', '*', '^', '$', '@', '!']
-        self.split = split
 
         # base directory & generation
         self.home = os.path.join(os.getcwd(), home)
@@ -66,7 +64,7 @@ class GameScraper(object):
         game = []
         for g in self.game:
             game.append(self.__pull(g, 'text') if type(g) is list else str(g))
-        self.__generate_split(game) if type(self.split) is dict else self.__generate_single(game)
+        self.__generate_split(game) if type(self.page[1]) is dict else self.__generate_single(game)
 
     def __generate_single(self, game):
         ''' function: generate_single
@@ -88,7 +86,7 @@ class GameScraper(object):
             @game    list containing game title and platform information
             @split   dictionary of category/selector pairs for splitting
         '''
-        for selector, category in self.split.iteritems():
+        for selector, category in self.page[1].iteritems():
             tags = self.__pull([selector], 'html')
             for content in tags:
                 title = []
@@ -111,7 +109,7 @@ class GameScraper(object):
 
             # append/prepend game information to full filename
             if category:         filename = category + ' ' + filename
-            if len(game[0]) > 0: filename = game[0] + ' ' + filename
+            if len(game[0]) > 0: filename = game[0]  + ' ' + filename
             if len(game[1]) > 0: filename = filename + ' ' + game[1]
 
             # filter out illegal characters for filename
@@ -124,8 +122,7 @@ class GameScraper(object):
                 for content in tag:
                     content = self.__finalize_extract(content)
                     body = unicode(content).strip().encode('ascii','ignore')
-                    temp = deHTMLfy(body)
-                    file.write(temp)
+                    file.write(deHTMLfy(body))
             file.write('</body>\n</html>')
             file.close()
         else:

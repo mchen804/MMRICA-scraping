@@ -18,10 +18,10 @@ from time import time
 from json import loads
 
 ###############################################################################
-################### Class definition for GameScraper object ###################
+################### Class definition for GameCrawler object ###################
 ###############################################################################
 
-class GameCrawler:
+class GameCrawler(object):
     def __init__(self, scraper, selectors, base=''):
         ''' function: constructor
             ---------------------
@@ -47,20 +47,7 @@ class GameCrawler:
             -------------------------------------------------------
             @url    string representing URL to classify
         '''
-        if re.match(self.base + '/wikis/.+/.+', url):
-            return True
-        else:
-            return False
-
-    def __append_sublist(self, lis, sublis):
-        ''' function: append_sublist
-            ------------------------
-            extract links recursively down sublists
-            ---------------------------------------
-        '''
-        for d in sublis:
-            lis.append(self.base + d['href'])
-            if d.has_key('sub'): self.__append_sublist(lis, d['sub'])
+        return True
 
     def __get_neighbors(self):
         ''' function: get_neighbors
@@ -69,14 +56,7 @@ class GameCrawler:
             ------------------------------------------------------------
         '''
         neighbors, soup = [], self.scraper.soup
-        if soup:
-            for link in soup.select(self.selectors['menu']):
-                for doc in loads(link['data-sub']):
-                    if doc.has_key('href'): neighbors.append(self.base + doc['href'])
-                    if doc.has_key('sub'): self.__append_sublist(neighbors, doc['sub'])
-            for link in soup.select(self.selectors['embed']):
-                fqdn = self.base + link['href']
-                if re.match(self.base + '/wikis/.+', fqdn) and self.__relevant(fqdn): neighbors.append(fqdn)
+        if soup: pass
         return neighbors
 
     ###########################################################################
@@ -94,11 +74,11 @@ class GameCrawler:
         if url not in self.explored: self.frontier.append(url)
         while len(self.frontier) > 0:
             node = self.frontier.pop(0)
-            if self.scraper.update(node) == 0: pass
-            else:
-                continue
-            self.explored.add(node)
-            for neighbor in self.__get_neighbors():
-                if neighbor not in self.frontier and neighbor not in self.explored:
-                    self.frontier.append(neighbor)
-            self.scraper.scrape()
+            if self.scraper.update(node) == 0:
+                self.explored.add(node)
+                self.scraper.scrape()
+                for neighbor in self.__get_neighbors():
+                    if neighbor not in self.frontier and neighbor not in self.explored:
+                        self.frontier.append(neighbor)
+            else: continue
+
