@@ -15,34 +15,23 @@ The purpose of this module is to implement intelligent web crawling and scraping
 ## Description
 This python module contains the following files and directories:
 
-* crawler.py - Unfinished generic url crawler
-* html/
-  * auto-generated .html files
-* ign/
-  * crawler.py - super-module for crawling/scraping IGN pages
-  * wiki/
-    * \_\_init\_\_.py
-    * scraper.py - module to scrape IGN wiki pages into .html files
-    * crawler.py - module to crawl over IGN wiki pages for curation
-  * cheat/
-    * \_\_init\_\_.py
-    * scraper.py - module to scrape IGN cheat pages into multiple .html files
+* IGNCrawler.py   - extension of generics.WebCrawler to scrape cheat/wiki sites from IGN
+* WikiaCrawler.py - extension of generics.WebCrawler to scrape general wikia/wiki site
+* generics/
+  * \_\_init\_\_.py
+  * GameScraper.py - module containing class definition for generic, extensible Web Scraper
+  * GameCrawler.py - module containing class definition for generic, extensible Web Crawler
 * wikia/
   * \_\_init\_\_.py
   * scraper.py - module for scraping Wikia pages
   * crawler.py - module for crawling over Wikia links
-* seed/
-  * ign_wiki_scraper_test - test file for ign/wiki/scraper.py
-  * ign_wiki_crawler_test - test file for ign/wiki/crawler.py
-  * ign_cheat_scraper_test - file file for ign/cheat/scraper.py
-  * ign_crawler_test - test file for ign/crawler.py
-  * wiki_scraper_test - test file for wikia/scraper.py
-  * wiki_crawler_test _ test file for wikia/crawler.py
+* html/   auto-generated .html files
+* seed/   .txt files for testing scrapers/crawlers
 
 ## Usage
 Ensure python and the beautifulsoup4 library is installed:
 
-* python ign/crawler.py [file/url, [...]]
+* python IGNCrawler.py [file/url, [...]]
 
 ## Development
 This module was developed and tested on Python 2.7.5 and OS 10.11.3
@@ -50,7 +39,7 @@ This module was developed and tested on Python 2.7.5 and OS 10.11.3
 ## Contributors
 * Ankai Lou (lou.56@osu.edu)
 
-## The MIT License (MIT)
+## The MIT License
 
 Copyright (c) 2016 Ankai Lou
 

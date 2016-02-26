@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 
-''' IGN.py
-    ------
+''' IGNCrawler.py
+    -------------
     @author = Ankai Lou
     -------------------
     Module for scraping IGN wiki, cheat, and walkthrough pages into HTML
@@ -21,11 +21,11 @@ from generics.GameCrawler import GameCrawler
 
 home = 'html/ign/'
 base = 'http://www.ign.com'
-bt = ['a', 'div.gh-next-prev-buttons', 'img', 'p.wiki-videoEmbed']
 gt = ['h2.contentTitle a']
 pt = ['h1.gh-PageTitle']
 gp = ['div.contentPlatformsText span a']
 pc = ['div.grid_12.push_4.alpha.omega.bodyCopy.gh-content']
+bt = ['a', 'div.gh-next-prev-buttons', 'img', 'p.wiki-videoEmbed']
 bp = ['Recent Changes', 'Orphaned Pages', 'Dead-end Pages',
       'Wanted Pages', 'Short Pages', 'Long Pages', 'All Pages']
 selector = {'cheats' : 'ul.contentNav.clear.noprint a[title=cheats]',
@@ -49,6 +49,10 @@ class IGNCrawler(GameCrawler):
             ---------------------
             instantiate crawler for relevant IGN sites
             ------------------------------------------
+            @scraper    GameScraper object used for scraping wiki peages
+            @cscraper   GameScraoer object used for scraping cheat pages
+            @selectors  dictionary of css selectors for URL curation
+            @base       base URL for incomplete paths
         '''
         GameCrawler.__init__(self, scraper, selector, base)
         self.cscraper = cscraper
@@ -67,8 +71,8 @@ class IGNCrawler(GameCrawler):
         return True if re.match(self.base + '/.+/.+/.+', url) else False
 
     def __get_neighbors(self):
-        ''' function: get_neighbor
-            ----------------------
+        ''' function: get_neighbors
+            -----------------------
             return relevant, non-visited neighbors to @self.scraper.soup
         '''
         neighbors, soup = [], self.scraper.soup
@@ -133,6 +137,7 @@ def main(argv):
     ''' function: main
         --------------
         accept list of urls & filepaths to url lists as @argv
+        -----------------------------------------------------
     '''
     total_start = time()
     scraper  = GameScraper(gt, gp, pt, pc, bt, bp, home)
@@ -149,3 +154,4 @@ def main(argv):
 
 if __name__ == '__main__':
     main(sys.argv[1:])
+

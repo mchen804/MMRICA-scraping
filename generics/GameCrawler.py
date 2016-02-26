@@ -27,8 +27,9 @@ class GameCrawler(object):
             ---------------------
             instantiate game crawler object for site type
             ---------------------------------------------
-            @scraper  GameScraper object used for scraping/updating url
-            @base     base URL for incomplete paths (thanks IGN)
+            @scraper   GameScraper object used for scraping/updating url
+            @selector  dictionary of css selector for URL curation
+            @base      base URL for incomplete paths (thanks IGN)
         '''
         self.scraper = scraper
         self.selectors = selectors
