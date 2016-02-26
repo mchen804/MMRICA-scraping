@@ -12,19 +12,37 @@ import os
 import re
 from time import time
 from urllib2 import urlopen
-from wiki.crawler import crawl
-from cheat.scraper import scrape
 from bs4 import BeautifulSoup
+from generics.GameScraper import GameScraper
+from generics.GameCrawler import GameCrawler
 
 ###############################################################################
 ############################## global variables ###############################
 ###############################################################################
 
-explored = set()
-html_dir = '../html/ign/'
-ign_base = 'http://www.ign.com'
 sublinks = ['wiki-guide', 'cheats']
-selectors = { 'sublink' : 'ul.contentNav.clear.noprint a' }
+
+bad_tags = ['a', 'div.gh-next-prev-buttons', 'img', 'p.wiki-videoEmbed']
+gt = ['h2.contentTitle a']
+pt = ['h1.gh-PageTitle']
+gp = ['div.contentPlatformsText span a']
+pc = ['div.grid_12.push_4.alpha.omega.bodyCopy.gh-content']
+bp = ['Recent Changes', 'Orphaned Pages', 'Dead-end Pages', 'Wanted Pages', 'Short Pages', 'Long Pages', 'All Pages']
+home = '../html/ign/'
+selectors = {'menu'  : 'div.ghn-L1.ghn-hasSub', 'embed' : 'div.grid_12.push_4.alpha.omega.bodyCopy.gh-content a' }
+base = 'http://www.ign.com'
+
+cheat_pt = ['h3.maintext16.bold.grey']
+cheat_pc = []
+categories = {'div#category_cheat div.cheatBody div.grid_12.omega' : 'Cheat',
+              'div#category_unlockable div.cheatBody div.grid_12.omega' : 'Unlockable',
+              'div#category_hint div.cheatBody div.grid_12.omega' : 'Hint',
+              'div#category_easter-egg div.cheatBody div.grid_12.omega' : 'Easter Egg',
+              'div#category_achievement div.cheatBody div.grid_12.omega' : 'Achievement'}
+
+scraper = GameScraper(gt, gp, pt, pc, bad_tags, bp, home)
+crawler = GameCrawler(scraper, selectors, base)
+cheat_scraper = GameScraper(gt, gp, cheat_pt, cheat_pc, bad_tags, bp, home, categories)
 
 ###############################################################################
 ############### helper functions for scraping generic IGN pages ###############
@@ -43,9 +61,9 @@ def __dissect(url):
 
     global explored
     for a in [link
-              for attr in sublinks
-              for link in soup.select(selectors['sublink'] + '[title=%s]'%attr)
-              if link['href'] not in explored]: classify(a['href'])
+    for attr in sublinks
+    for link in soup.select('ul.contentNav.clear.noprint a[title=%s]'%attr)]:
+        classify(a['href'])
 
 def classify(url):
     ''' function: classify
@@ -53,19 +71,17 @@ def classify(url):
         determine action for @url based on regex matching
     '''
     global explored
-    if re.match(ign_base + '/games/.+', url):
+    if re.match(base + '/games/.+', url):
         __dissect(url)
-    elif os.path.isfile(url): 
-        print 'LOL'
+    elif os.path.isfile(url):
         return
-    elif url not in explored:
-        if re.match(ign_base + '/wikis/.+', url):
-            explored = explored | crawl(url, html_dir)
-        elif re.match(ign_base + '/cheats/.+', url):
-            explored = explored | scrape(url, html_dir)
+    else:
+        if re.match(base + '/wikis/.+', url):
+            crawler.crawl(url)
+        elif re.match(base + '/cheats/.+', url):
+            cheat_scraper.scrape(url)
         else:
             print url, 'cannot be processed by existing scrapers...'
-    return explored
 
 ###############################################################################
 ##################### main function for testing purposes ######################
