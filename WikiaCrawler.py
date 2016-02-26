@@ -23,11 +23,12 @@ home = 'html/wikia/'
 base = ''
 gt = []
 pt = ['h1#firstHeading', 'div.header-column.header-title']
-gp = ['table.infobox.bordered.vevent tr td b']
+gp = [] #'table.infobox.bordered.vevent tr td:first-child + td b'
 pc = ['div#bodyContent', 'div#WikiaArticle']
 bt = ['a', 'div.gh-next-prev-buttons', 'img', 'iframe']
-bp = ['Home', 'Main Page', 'Redirected', 'Disambiguation', 'Logged', 'New images',
-      'logged in to chat', 'Forum', 'New User', 'Help', 'Special', 'News', 'Recent Wiki Activity']
+bp = ['Home', 'Main Page', 'Redirected', 'Disambiguation', 'Logged',
+      'New images', 'logged in to chat', 'Forum', 'New User', 'Help',
+      'Special', 'News', 'Recent Wiki Activity']
 selector = {'menu'  : ['div#p-Navigation div.pBody a', 'nav.WikiNav li.nav-item .subnav-2-item a'],
             'embed' : ['div#bodyContent a', 'div#WikiaArticle a']}
 

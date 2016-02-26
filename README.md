@@ -21,10 +21,6 @@ This python module contains the following files and directories:
   * \_\_init\_\_.py
   * GameScraper.py - module containing class definition for generic, extensible Web Scraper
   * GameCrawler.py - module containing class definition for generic, extensible Web Crawler
-* wikia/
-  * \_\_init\_\_.py
-  * scraper.py - module for scraping Wikia pages
-  * crawler.py - module for crawling over Wikia links
 * html/   auto-generated .html files
 * seed/   .txt files for testing scrapers/crawlers
 
