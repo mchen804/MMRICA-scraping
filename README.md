@@ -10,24 +10,31 @@ MMRICA-scraping
 6. [License](#the-mit-license)
 
 ## Overview
-The purpose of this module is to implement intelligent web crawling and scraping for various game walkthrough/cheats/tips sites.
+The purpose of this module is to implement intelligent web crawling and scraping for various 
+game walkthrough/cheats/tips sites. Currently there is a working implementation of scrapers for 
+IGN wiki/cheat pages and general Wikia/Wiki pages.
+
+This module provides an API/skeleton for extending and implementing additional Scraper and 
+Crawler classes from the generics.WebScraper and generics.WebCrawler class definitions.
 
 ## Description
 This python module contains the following files and directories:
 
-* IGNCrawler.py   - extension of generics.WebCrawler to scrape cheat/wiki sites from IGN
-* WikiaCrawler.py - extension of generics.WebCrawler to scrape general wikia/wiki site
+* IGNCrawler.py   -- extension of generics.WebCrawler to scrape cheat/wiki sites from IGN
+* WikiaCrawler.py -- extension of generics.WebCrawler to scrape general wikia/wiki site
 * generics/
   * \_\_init\_\_.py
-  * GameScraper.py - module containing class definition for generic, extensible Web Scraper
-  * GameCrawler.py - module containing class definition for generic, extensible Web Crawler
-* html/   auto-generated .html files
-* seed/   .txt files for testing scrapers/crawlers
+  * GameScraper.py -- module containing class definition for generic, extensible Web Scraper
+  * GameCrawler.py -- module containing class definition for generic, extensible Web Crawler
+* html/  -- auto-generated .html files
+* seed/  -- .txt files for testing scrapers/crawlers
 
 ## Usage
 Ensure python and the beautifulsoup4 library is installed:
 
 * python IGNCrawler.py [file/url, [...]]
+  * file -- .txt file w one URL/file per line
+  * url  -- fully-qualified domain name to scrape
 
 ## Development
 This module was developed and tested on Python 2.7.5 and OS 10.11.3
