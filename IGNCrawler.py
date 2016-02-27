@@ -7,6 +7,10 @@
     Module for scraping IGN wiki, cheat, and walkthrough pages into HTML
 '''
 
+###############################################################################
+######################## import libraries & frameworks ########################
+###############################################################################
+
 import sys
 import os
 import re
