@@ -122,7 +122,7 @@ class GameScraper(object):
                 for content in tag:
                     content = self.__finalize_extract(content)
                     body = unicode(content).strip().encode('ascii','ignore')
-                    file.write(deHTMLfy(body))
+                    file.write(body)
             file.write('</body>\n</html>')
             file.close()
         else:
